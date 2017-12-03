@@ -7,57 +7,43 @@
 //
 
 import UIKit
-
-class CircularControlView: UIView {
+@IBDesignable class CircularControlView: UIView {
+    var colors: [UIColor] = [.red, .green, .purple, .magenta, .cyan]
+    var circleCenter: CGPoint = CGPoint(x: 0, y:0)
+    var radius: CGFloat = 100
     
     func degreesToRadians(degrees: CGFloat) -> CGFloat {
-        return degrees * CGFloat(M_PI) / 180
+        return degrees * CGFloat(Double.pi) / 180
     }
-
-    // Only override draw() if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func draw(_ rect: CGRect) {
-        let center = CGPoint(x: 100, y: 100),
-            bigCircle = UIBezierPath(),
-            grayCircle = UIBezierPath()
-        
-        //aPath.move(to: CGPoint(x:0, y:100))
-        
-        //aPath.addLine(to: CGPoint(x:100, y:100))
-        
-        //Keep using the method addLineToPoint until you get to the one where about to close the path
-        
-        //aPath.close()
-        
-        //If you want to stroke it with a red color
-        //UIColor.blue.set()
-        //aPath.stroke()
-        //If you want to fill it as well
-        //aPath.fill()
-        
-        bigCircle.addArc(withCenter: center, radius: 100, startAngle: 0, endAngle: 360, clockwise: true)
+    
+    func drawBackground() -> Void {
+        let endAngle = CGFloat(2*Double.pi),
+            bigCircle = UIBezierPath()
+        bigCircle.addArc(withCenter: circleCenter, radius: radius, startAngle: 0, endAngle: endAngle, clockwise: true)
         UIColor.blue.set()
         bigCircle.fill()
-        
-        grayCircle.addArc(withCenter: center, radius: 95, startAngle: 0, endAngle: 360, clockwise: true)
+
+        let grayCircle = UIBezierPath()
+        grayCircle.addArc(withCenter: circleCenter, radius: (radius-5), startAngle: 0, endAngle: endAngle, clockwise: true)
         UIColor.gray.set()
         grayCircle.fill()
         
         let whiteBackground = UIBezierPath()
-        whiteBackground.addArc(withCenter: center, radius: 90, startAngle: 0, endAngle: 360, clockwise: true)
+        whiteBackground.addArc(withCenter: circleCenter, radius: (radius-10), startAngle: 0, endAngle: endAngle, clockwise: true)
         UIColor.white.set()
         whiteBackground.fill()
-        
-        let colors: [UIColor] = [.red, .green, .purple, .magenta, .cyan],
-            startFrom = 160,
+    }
+    
+    func drawScale() -> Void {
+        let startFrom = 160,
             segment = 45
-
+        
         for i in 0...4 {
             let scale = UIBezierPath(),
             start = degreesToRadians(degrees: CGFloat(startFrom + (i * segment))),
             end = degreesToRadians(degrees: CGFloat(startFrom + (i * segment) + segment))
             
-            scale.addArc(withCenter: center, radius: 75, startAngle: start, endAngle:end, clockwise: true)
+            scale.addArc(withCenter: circleCenter, radius: (radius-25), startAngle: start, endAngle:end, clockwise: true)
             scale.lineWidth = 20
             colors[i].set()
             scale.stroke()
@@ -66,14 +52,28 @@ class CircularControlView: UIView {
             UIColor.gray.set()
             scale.stroke()
         }
-        
+    }
+    
+    func drawArrow() -> Void {
         let arrow = UIBezierPath()
+
         UIColor.blue.set()
-        arrow.addArc(withCenter: center, radius: 10, startAngle: 0, endAngle: degreesToRadians(degrees: 360), clockwise: true)
+        arrow.addArc(withCenter: circleCenter, radius: 10, startAngle: 0, endAngle: degreesToRadians(degrees: 360), clockwise: true)
         arrow.fill()
-        arrow.move(to: center)
-        arrow.addLine(to: CGPoint(x: 100, y: 25))
+        arrow.move(to: circleCenter)
+        arrow.addLine(to: CGPoint(x: circleCenter.x, y: circleCenter.y - (radius - 25)))
         arrow.stroke()
+    }
+
+    // Only override draw() if you perform custom drawing.
+    // An empty implementation adversely affects performance during animation.
+    override func draw(_ rect: CGRect) {
+        circleCenter = CGPoint(x: rect.midX, y: rect.midY)
+        radius = min(rect.width, rect.height) / 2 - 10
+        
+        drawBackground()
+        drawScale()
+        drawArrow()
     }
 
 }
